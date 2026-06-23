@@ -58,9 +58,9 @@ public class BookRepositoryImpl implements BookRepository {
             Query query = session.createQuery("select b from Book b where b.id = :id", Book.class);
             query.setParameter("id", id);
             Book book = (Book) query.getSingleResult();
-            return book == null ? Optional.empty() : Optional.of(book);
+            return Optional.ofNullable(book);
         } catch (Exception e) {
-            throw new DataProcessingException("Can't get all books", e);
+            throw new DataProcessingException("Can't get book by id: " + id, e);
         }
     }
 }
