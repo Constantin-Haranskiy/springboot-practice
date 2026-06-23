@@ -1,24 +1,22 @@
 package mate.academy.springboot.practice.repository.impl;
 
+import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaQuery;
 import java.util.List;
+import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import mate.academy.springboot.practice.exception.DataProcessingException;
 import mate.academy.springboot.practice.model.Book;
 import mate.academy.springboot.practice.repository.BookRepository;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@RequiredArgsConstructor
 public class BookRepositoryImpl implements BookRepository {
-    private SessionFactory sessionFactory;
-
-    @Autowired
-    public BookRepositoryImpl(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
+    private final SessionFactory sessionFactory;
 
     @Override
     public Book save(Book book) {
@@ -51,6 +49,18 @@ public class BookRepositoryImpl implements BookRepository {
             return session.createQuery(criteriaQuery).getResultList();
         } catch (Exception e) {
             throw new DataProcessingException("Can't get all books", e);
+        }
+    }
+
+    @Override
+    public Optional<Book> findById(Long id) {
+        try (Session session = sessionFactory.openSession()) {
+            Query query = session.createQuery("select b from Book b where b.id = :id", Book.class);
+            query.setParameter("id", id);
+            Book book = (Book) query.getSingleResult();
+            return Optional.ofNullable(book);
+        } catch (Exception e) {
+            throw new DataProcessingException("Can't get book by id: " + id, e);
         }
     }
 }
