@@ -10,6 +10,7 @@ import mate.academy.springboot.practice.model.Book;
 import mate.academy.springboot.practice.repository.BookRepository;
 import mate.academy.springboot.practice.service.BookService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -36,5 +37,20 @@ public class BookServiceImpl implements BookService {
                 () -> new EntityNotFoundException("Cant find book by id: " + id)
         );
         return bookMapper.toDto(book);
+    }
+
+    @Override
+    @Transactional
+    public BookDto update(Long id, CreateBookRequestDto createBookRequestDto) {
+        Book book = bookRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Cant find book by id: " + id)
+        );
+        bookMapper.updateBook(createBookRequestDto, book);
+        return bookMapper.toDto(bookRepository.save(book));
+    }
+
+    @Override
+    public void delete(Long id) {
+        bookRepository.deleteById(id);
     }
 }
