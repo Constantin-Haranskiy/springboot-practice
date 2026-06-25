@@ -40,6 +40,7 @@ public class CustomGlobalExceptionHandler {
             String message = e.getDefaultMessage();
             return field + " field " + message;
         }
+
         return e.getDefaultMessage();
     }
 }
