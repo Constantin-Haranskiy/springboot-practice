@@ -3,7 +3,8 @@ package mate.academy.springboot.practice.validation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Objects;
-import org.apache.commons.beanutils.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 
 public class FieldMatchValidator implements ConstraintValidator<FieldMatch, Object> {
     private String expectedFieldName;
@@ -22,8 +23,9 @@ public class FieldMatchValidator implements ConstraintValidator<FieldMatch, Obje
         }
 
         try {
-            Object expectedObj = BeanUtils.getProperty(value, expectedFieldName);
-            Object actualObj = BeanUtils.getProperty(value, actualFieldName);
+            BeanWrapper beanWrapper = new BeanWrapperImpl(value);
+            Object expectedObj = beanWrapper.getPropertyValue(expectedFieldName);
+            Object actualObj = beanWrapper.getPropertyValue(actualFieldName);
             return Objects.equals(expectedObj, actualObj);
         } catch (Exception e) {
             return false;
