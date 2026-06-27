@@ -10,6 +10,7 @@ import mate.academy.springboot.practice.validation.Password;
 @FieldMatch(expected = "password", actual = "repeatPassword", message = "passwords do not match")
 public class RegisterUserRequestDto {
     @Email
+    @NotBlank
     private String email;
     @Password
     private String password;
