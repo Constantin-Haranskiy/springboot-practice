@@ -34,12 +34,19 @@ public class CustomGlobalExceptionHandler {
         return new ResponseEntity<>("Entity not found exception occurred", HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(RegistrationException.class)
+    public ResponseEntity<String> handleRegistrationException(RegistrationException ex) {
+        return new ResponseEntity<>("An error during registration. " + ex.getMessage(),
+                HttpStatus.BAD_REQUEST);
+    }
+
     private String getErrorMessage(ObjectError e) {
         if (e instanceof FieldError fieldError) {
             String field = fieldError.getField();
             String message = e.getDefaultMessage();
             return field + " field " + message;
         }
+
         return e.getDefaultMessage();
     }
 }
