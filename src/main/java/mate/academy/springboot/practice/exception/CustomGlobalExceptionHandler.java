@@ -1,6 +1,5 @@
 package mate.academy.springboot.practice.exception;
 
-import jakarta.persistence.EntityExistsException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
@@ -37,7 +36,8 @@ public class CustomGlobalExceptionHandler {
 
     @ExceptionHandler(RegistrationException.class)
     public ResponseEntity<String> handleRegistrationException(RegistrationException ex) {
-        return new ResponseEntity<>("An error during registration. " + ex.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("An error during registration. " + ex.getMessage(),
+                HttpStatus.BAD_REQUEST);
     }
 
     private String getErrorMessage(ObjectError e) {
