@@ -1,9 +1,11 @@
 package mate.academy.springboot.practice.service.impl;
 
+import jakarta.transaction.Transactional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import mate.academy.springboot.practice.dto.RegisterUserRequestDto;
 import mate.academy.springboot.practice.dto.UserDto;
+import mate.academy.springboot.practice.exception.EntityNotFoundException;
 import mate.academy.springboot.practice.exception.RegistrationException;
 import mate.academy.springboot.practice.mapper.UserMapper;
 import mate.academy.springboot.practice.model.Role;
@@ -15,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
@@ -30,7 +33,7 @@ public class UserServiceImpl implements UserService {
                     + registerUserRequestDto.getEmail() + "already exists");
         }
         Role role = roleRepository.getByName(Role.RoleName.USER).orElseThrow(
-                () -> new RegistrationException(Role.RoleName.USER + " role not found")
+                () -> new EntityNotFoundException(Role.RoleName.USER + " role not found")
         );
         User user = userMapper.toModel(registerUserRequestDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
