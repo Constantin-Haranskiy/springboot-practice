@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-default-admin
+      author: Constantin-Haranskiy
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO users (email, password, first_name, last_name)
+              VALUES
+              (
+                'admin@gmail.com',
+                '$2a$10$gZWbrieHoO5KA90biNPShO.VxhwYgqOn74o3rDB0zYh4m2KohQCqC',
+                'Admin',
+                'Admin'
+              )
+        - sql:
+            sql: |
+              INSERT INTO users_roles (user_id, role_id)
+              SELECT u.id, r.id
+              FROM users u
+              LEFT JOIN roles r
+              ON (u.email = 'admin@gmail.com' AND r.name = 'ADMIN')
+              WHERE u.email = 'admin@gmail.com'
