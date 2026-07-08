@@ -5,48 +5,48 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.PreRemove;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
+@Entity
 @Getter
 @Setter
-@Entity
+@Table(name = "categories")
 @SQLRestriction("is_deleted = false")
-@SQLDelete(table = "books", sql = "UPDATE books SET is_deleted = true WHERE id=?")
-@Table(name = "books")
-public class Book {
+@SQLDelete(table = "categories", sql = "UPDATE categories SET is_deleted = true WHERE id=?")
+@NoArgsConstructor
+public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
-    private String title;
-    @Column(nullable = false)
-    private String author;
-    @Column(nullable = false, unique = true)
-    private String isbn;
-    @Column(nullable = false)
-    private BigDecimal price;
+    private String name;
     private String description;
-    private String coverImage;
     @Column(nullable = false)
     private boolean isDeleted = false;
-
-    @ManyToMany
+    @ManyToMany(mappedBy = "categories")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    @JoinTable(name = "books_categories",
-            joinColumns = @JoinColumn(name = "book_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id"))
-    private Set<Category> categories = new HashSet<>();
+    private Set<Book> books = new HashSet<>();
+
+    public Category(Long id) {
+        this.id = id;
+    }
+
+    @PreRemove
+    private void removeGroupsFromUsers() {
+        for (Book book : books) {
+            book.getCategories().remove(this);
+        }
+    }
 }

@@ -44,6 +44,16 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public Page<BookDto> findAllByCategory(Long categoryId, Pageable pageable) {
+        return new PageImpl<>(
+                bookRepository.findAllByCategoriesId(categoryId, pageable)
+                        .stream()
+                        .map(bookMapper::toDto)
+                        .toList()
+        );
+    }
+
+    @Override
     @Transactional
     public BookDto update(Long id, CreateBookRequestDto createBookRequestDto) {
         Book book = bookRepository.findById(id).orElseThrow(
