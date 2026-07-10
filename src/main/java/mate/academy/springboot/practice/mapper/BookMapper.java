@@ -20,9 +20,6 @@ public interface BookMapper {
 
     @AfterMapping
     default void setCategoriesIds(Book book, @MappingTarget BookDto bookDto) {
-        if (book.getCategories() == null || book.getCategories().isEmpty()) {
-            return;
-        }
         List<Long> categoriesIds = book.getCategories()
                 .stream()
                 .map(Category::getId)
@@ -35,9 +32,6 @@ public interface BookMapper {
 
     @AfterMapping
     default void setCategories(CreateBookRequestDto requestDto, @MappingTarget Book book) {
-        if (requestDto.getCategoriesIds() == null || requestDto.getCategoriesIds().isEmpty()) {
-            return;
-        }
         Set<Category> categories = requestDto.getCategoriesIds()
                 .stream()
                 .map(Category::new)
