@@ -9,7 +9,6 @@ import mate.academy.springboot.practice.dto.CategoryDto;
 import mate.academy.springboot.practice.dto.CreateCategoryRequestDto;
 import mate.academy.springboot.practice.service.BookService;
 import mate.academy.springboot.practice.service.CategoryService;
-import mate.academy.springboot.practice.service.impl.CategoryServiceImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -24,14 +23,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Books management", description = "Endpoints for managing books")
+@Tag(name = "Category management", description = "Endpoints for managing categories")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/categories")
 public class CategoryController {
     private final BookService bookService;
     private final CategoryService categoryService;
-    private final CategoryServiceImpl categoryServiceImpl;
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
@@ -80,7 +78,7 @@ public class CategoryController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete category by id",
             description = "Delete category by id")
-    public void deleteBook(@PathVariable Long id) {
+    public void deleteCategory(@PathVariable Long id) {
         categoryService.delete(id);
     }
 }
