@@ -9,8 +9,10 @@ import mate.academy.springboot.practice.exception.EntityNotFoundException;
 import mate.academy.springboot.practice.exception.RegistrationException;
 import mate.academy.springboot.practice.mapper.UserMapper;
 import mate.academy.springboot.practice.model.Role;
+import mate.academy.springboot.practice.model.ShoppingCart;
 import mate.academy.springboot.practice.model.User;
 import mate.academy.springboot.practice.repository.RoleRepository;
+import mate.academy.springboot.practice.repository.ShoppingCartRepository;
 import mate.academy.springboot.practice.repository.UserRepository;
 import mate.academy.springboot.practice.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final ShoppingCartRepository shoppingCartRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
@@ -38,6 +41,12 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toModel(registerUserRequestDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRoles(Set.of(role));
-        return userMapper.toDto(userRepository.save(user));
+
+        User savedUser = userRepository.save(user);
+        ShoppingCart shoppingCart = new ShoppingCart();
+        shoppingCart.setUser(savedUser);
+        shoppingCartRepository.save(shoppingCart);
+
+        return userMapper.toDto(savedUser);
     }
 }
