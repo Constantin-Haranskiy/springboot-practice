@@ -38,7 +38,7 @@ public class CustomGlobalExceptionHandler {
     @ExceptionHandler(RegistrationException.class)
     public ResponseEntity<String> handleRegistrationException(RegistrationException ex) {
         return new ResponseEntity<>("An error occurred during registration. " + ex.getMessage(),
-                HttpStatus.BAD_REQUEST);
+                HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(AuthenticationException.class)

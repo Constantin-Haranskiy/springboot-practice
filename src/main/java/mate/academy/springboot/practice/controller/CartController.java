@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import mate.academy.springboot.practice.dto.AddItemToCartRequestDto;
-import mate.academy.springboot.practice.dto.CartItemDto;
 import mate.academy.springboot.practice.dto.ShoppingCartDto;
 import mate.academy.springboot.practice.dto.UpdateItemQuantityRequestDto;
 import mate.academy.springboot.practice.service.ShoppingCartService;
@@ -40,7 +39,7 @@ public class CartController {
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "Add item to cart", description = "Add item to shopping cart")
-    public CartItemDto addItemToCart(Authentication authentication,
+    public ShoppingCartDto addItemToCart(Authentication authentication,
                                      @RequestBody @Valid AddItemToCartRequestDto cartItemDto) {
         return cartService.add(authentication, cartItemDto);
     }
@@ -49,7 +48,7 @@ public class CartController {
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "Update item quantity",
             description = "Update item quantity in shopping cart")
-    public CartItemDto updateItemQuantity(Authentication authentication,
+    public ShoppingCartDto updateItemQuantity(Authentication authentication,
                                           @PathVariable Long id,
                                           @RequestBody @Valid
                                           UpdateItemQuantityRequestDto itemQuantityRequestDto) {

@@ -1,12 +1,10 @@
 package mate.academy.springboot.practice.dto;
 
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 @Data
 public class UpdateItemQuantityRequestDto {
     @Positive
-    @NotNull
-    private Integer quantity;
+    private int quantity;
 }
