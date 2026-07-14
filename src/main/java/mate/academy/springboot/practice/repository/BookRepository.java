@@ -13,13 +13,13 @@ import org.springframework.data.repository.query.Param;
 public interface BookRepository extends JpaRepository<Book, Long> {
 
     @EntityGraph(attributePaths = "categories")
-    Page<Book> findAllByCategoriesId(@Param("categoryId") Long categoryId, Pageable pageable);
+    Page<Book> findAllByCategoriesId(Long categoryId, Pageable pageable);
 
     @EntityGraph(attributePaths = "categories")
     Page<Book> findAll(Pageable pageable);
 
     @EntityGraph(attributePaths = "categories")
-    Optional<Book> findById(@Param("id") Long id);
+    Optional<Book> findById(Long id);
 
     @Modifying
     @Query(value = "DELETE FROM books_categories WHERE category_id = :categoryId",

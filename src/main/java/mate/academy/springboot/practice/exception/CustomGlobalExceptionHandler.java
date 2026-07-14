@@ -31,12 +31,25 @@ public class CustomGlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException ex) {
-        return new ResponseEntity<>("Entity not found exception occurred", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>("Entity not found exception occurred. "
+                + ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(RegistrationException.class)
     public ResponseEntity<String> handleRegistrationException(RegistrationException ex) {
-        return new ResponseEntity<>("An error during registration. " + ex.getMessage(),
+        return new ResponseEntity<>("An error occurred during registration. " + ex.getMessage(),
+                HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<String> handleAuthenticationException(AuthenticationException ex) {
+        return new ResponseEntity<>("An authentication error occurred. " + ex.getMessage(),
+                HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(InsertionException.class)
+    public ResponseEntity<String> handleInsertionException(InsertionException ex) {
+        return new ResponseEntity<>("An error during insertion. " + ex.getMessage(),
                 HttpStatus.BAD_REQUEST);
     }
 
