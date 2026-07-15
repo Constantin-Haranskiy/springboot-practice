@@ -1,7 +1,6 @@
 package mate.academy.springboot.practice.service.impl;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -10,7 +9,6 @@ import mate.academy.springboot.practice.dto.CreateOrderRequestDto;
 import mate.academy.springboot.practice.dto.OrderDto;
 import mate.academy.springboot.practice.dto.OrderItemDto;
 import mate.academy.springboot.practice.dto.UpdateOrderStatusRequestDto;
-import mate.academy.springboot.practice.exception.AuthenticationException;
 import mate.academy.springboot.practice.exception.EntityNotFoundException;
 import mate.academy.springboot.practice.exception.OrderProcessingException;
 import mate.academy.springboot.practice.helper.UserHelper;
@@ -19,9 +17,9 @@ import mate.academy.springboot.practice.mapper.OrderMapper;
 import mate.academy.springboot.practice.model.CartItem;
 import mate.academy.springboot.practice.model.Order;
 import mate.academy.springboot.practice.model.OrderItem;
-import mate.academy.springboot.practice.model.OrderStatus;
 import mate.academy.springboot.practice.model.ShoppingCart;
 import mate.academy.springboot.practice.model.User;
+import mate.academy.springboot.practice.repository.BookRepository;
 import mate.academy.springboot.practice.repository.CartItemRepository;
 import mate.academy.springboot.practice.repository.OrderItemRepository;
 import mate.academy.springboot.practice.repository.OrderRepository;
@@ -42,44 +40,38 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
     private final ShoppingCartRepository shoppingCartRepository;
+    private final BookRepository bookRepository;
 
     @Override
-    public List<OrderDto> findAll(Authentication authentication) {
+    public List<OrderDto> findAllByUser(Authentication authentication) {
         Long userId = userHelper.getUserOrThrow(authentication).getId();
-        return orderRepository.findByUserId(userId)
-                .map(orders -> orders.stream().map(orderMapper::toDto).toList())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Not found order for user with id: " + userId));
+        return orderRepository.findAllByUserId(userId).stream()
+                .map(orderMapper::toDto)
+                .toList();
     }
 
     @Override
-    public List<OrderItemDto> findById(Authentication authentication, Long orderId) {
+    public List<OrderItemDto> findOrderItemsByOrder(Authentication authentication, Long orderId) {
         Long userId = userHelper.getUserOrThrow(authentication).getId();
-        Order order = orderRepository.findById(orderId).orElseThrow(
-                () -> new EntityNotFoundException("Not found order with id: " + orderId)
-        );
-        if (!order.getUser().getId().equals(userId)) {
-            throw new AuthenticationException("Access denied");
-        }
+        Order order = orderRepository.findByIdAndUserId(orderId, userId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Order with id: %d not found for user: %d", orderId, userId)
+                ));
 
         return orderMapper.toDto(order).getOrderItems();
     }
 
     @Override
-    public OrderItemDto findItemById(Authentication authentication, Long orderId, Long itemId) {
+    public OrderItemDto findOrderItemByIdAndOrder(Authentication authentication, Long orderId,
+                                                  Long itemId) {
         Long userId = userHelper.getUserOrThrow(authentication).getId();
-        Order order = orderRepository.findById(orderId).orElseThrow(
-                () -> new EntityNotFoundException("Not found order with id: " + orderId)
-        );
-        if (!order.getUser().getId().equals(userId)) {
-            throw new AuthenticationException("Access denied");
-        }
-
-        return order.getOrderItems().stream()
-                .filter(item -> item.getId().equals(itemId))
-                .map(orderItemMapper::toDto)
-                .findFirst().orElseThrow(
-                        () -> new EntityNotFoundException("Not found item with id: " + itemId));
+        return orderItemMapper.toDto(
+                orderItemRepository
+                        .findByIdAndOrderIdAndUserId(itemId, orderId, userId)
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                String.format("Order item with id: %d not found for order: %d "
+                                        + "and user: %d", itemId, orderId, userId)
+                        )));
     }
 
     @Override
@@ -101,11 +93,11 @@ public class OrderServiceImpl implements OrderService {
         );
 
         if (cart.getCartItems().isEmpty()) {
-            throw new OrderProcessingException("Shopping cart is empty");
+            throw new OrderProcessingException("Shopping cart for user:"
+                    + user.getId() + " is empty");
         }
+
         Order order = new Order();
-        order.setOrderDate(LocalDateTime.now());
-        order.setStatus(OrderStatus.CREATED);
         order.setShippingAddress(createOrderRequestDto.getShippingAddress());
         order.setUser(user);
 
@@ -125,12 +117,11 @@ public class OrderServiceImpl implements OrderService {
         }
 
         order.setTotal(totalPrice);
-
+        order.setOrderItems(new HashSet<>(orderItems));
         Order savedOrder = orderRepository.save(order);
-        List<OrderItem> savedOrderItems = orderItemRepository.saveAll(orderItems);
-        savedOrder.setOrderItems(new HashSet<>(savedOrderItems));
 
-        cartItemRepository.deleteAll(cart.getCartItems());
+        cart.clearCart();
+        shoppingCartRepository.save(cart);
         return orderMapper.toDto(savedOrder);
     }
 }

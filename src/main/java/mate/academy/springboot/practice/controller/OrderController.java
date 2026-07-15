@@ -33,7 +33,7 @@ public class OrderController {
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "Get user orders", description = "Get user orders")
     public List<OrderDto> getUserOrders(Authentication authentication) {
-        return orderService.findAll(authentication);
+        return orderService.findAllByUser(authentication);
     }
 
     @PostMapping
@@ -58,7 +58,7 @@ public class OrderController {
     @Operation(summary = "Get items of user order", description = "Get items of user order")
     public List<OrderItemDto> getOrderItems(Authentication authentication,
                                             @PathVariable Long orderId) {
-        return orderService.findById(authentication, orderId);
+        return orderService.findOrderItemsByOrder(authentication, orderId);
     }
 
     @GetMapping("/{orderId}/items/{itemId}")
@@ -67,6 +67,6 @@ public class OrderController {
     public OrderItemDto getOrderItems(Authentication authentication,
                                             @PathVariable Long orderId,
                                             @PathVariable Long itemId) {
-        return orderService.findItemById(authentication, orderId, itemId);
+        return orderService.findOrderItemByIdAndOrder(authentication, orderId, itemId);
     }
 }

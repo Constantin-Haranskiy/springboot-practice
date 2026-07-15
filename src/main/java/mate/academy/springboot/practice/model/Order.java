@@ -1,5 +1,7 @@
 package mate.academy.springboot.practice.model;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -15,40 +17,43 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Getter
 @Setter
+@SQLRestriction("is_deleted = false")
+@SQLDelete(table = "orders", sql = "UPDATE orders SET is_deleted = true WHERE id=?")
 @Table(name = "orders")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
-    @Fetch(FetchMode.JOIN)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @JoinColumn(nullable = false, name = "user_id")
-    private User user;
-    @Enumerated(EnumType.STRING)
-    @JoinColumn(nullable = false)
-    private OrderStatus status;
 
-    @JoinColumn(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OrderStatus status = OrderStatus.PENDING;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(nullable = false)
+    private Set<OrderItem> orderItems = new HashSet<>();
+
+    @Column(nullable = false)
     private BigDecimal total;
-    @JoinColumn(nullable = false)
-    private LocalDateTime orderDate;
-    @JoinColumn(nullable = false)
+
+    @Column(columnDefinition = "TIMESTAMP", nullable = false)
+    private LocalDateTime orderDate = LocalDateTime.now();
+
+    @Column(nullable = false)
     private String shippingAddress;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order")
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private Set<OrderItem> orderItems = new HashSet<>();
+    @Column(nullable = false)
+    private boolean isDeleted;
 }

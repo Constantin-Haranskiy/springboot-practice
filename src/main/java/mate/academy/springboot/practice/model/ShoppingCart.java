@@ -26,12 +26,24 @@ import org.hibernate.annotations.SQLRestriction;
 public class ShoppingCart {
     @Id
     private Long id;
+    
     @MapsId
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private User user;
-    @OneToMany(mappedBy = "shoppingCart", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+
+    @OneToMany(
+            mappedBy = "shoppingCart",
+            cascade = CascadeType.REMOVE,
+            fetch = FetchType.LAZY,
+            orphanRemoval = true
+    )
     private Set<CartItem> cartItems = new HashSet<>();
+
     @Column(nullable = false)
     private boolean isDeleted = false;
+
+    public void clearCart() {
+        cartItems.clear();
+    }
 }

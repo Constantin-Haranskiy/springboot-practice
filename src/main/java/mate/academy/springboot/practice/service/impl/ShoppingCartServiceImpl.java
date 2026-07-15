@@ -101,11 +101,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public void deleteItemsByBookId(Long bookId) {
-        cartItemRepository.removeByBookId(bookId);
-    }
-
-    @Override
     public void createUserShoppingCart(User user) {
         ShoppingCart shoppingCart = new ShoppingCart();
         shoppingCart.setUser(user);

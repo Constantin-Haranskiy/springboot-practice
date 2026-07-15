@@ -8,11 +8,12 @@ import mate.academy.springboot.practice.dto.UpdateOrderStatusRequestDto;
 import org.springframework.security.core.Authentication;
 
 public interface OrderService {
-    List<OrderDto> findAll(Authentication authentication);
+    List<OrderDto> findAllByUser(Authentication authentication);
 
-    List<OrderItemDto> findById(Authentication authentication, Long orderId);
+    List<OrderItemDto> findOrderItemsByOrder(Authentication authentication, Long orderId);
 
-    OrderItemDto findItemById(Authentication authentication, Long orderId, Long itemId);
+    OrderItemDto findOrderItemByIdAndOrder(Authentication authentication, Long orderId,
+                                           Long itemId);
 
     OrderDto updateStatus(Long id, UpdateOrderStatusRequestDto updateRequestDto);
 
