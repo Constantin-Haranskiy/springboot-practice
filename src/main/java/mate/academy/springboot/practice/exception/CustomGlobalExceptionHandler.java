@@ -53,6 +53,18 @@ public class CustomGlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(LoginException.class)
+    public ResponseEntity<String> handleLoginException(LoginException ex) {
+        return new ResponseEntity<>("An error during login. " + ex.getMessage(),
+                HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(OrderProcessingException.class)
+    public ResponseEntity<String> handleOrderProcessingException(OrderProcessingException ex) {
+        return new ResponseEntity<>("An error during processing order. " + ex.getMessage(),
+                HttpStatus.BAD_REQUEST);
+    }
+
     private String getErrorMessage(ObjectError e) {
         if (e instanceof FieldError fieldError) {
             String field = fieldError.getField();

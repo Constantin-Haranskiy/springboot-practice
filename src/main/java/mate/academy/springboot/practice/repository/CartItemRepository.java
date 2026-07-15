@@ -13,4 +13,6 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
             + "LEFT JOIN FETCH ci.book "
             + "WHERE ci.id = :itemId")
     Optional<CartItem> findById(@Param("itemId") Long itemId);
+
+    void removeByBookId(Long bookId);
 }

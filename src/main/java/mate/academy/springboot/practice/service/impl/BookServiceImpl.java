@@ -8,6 +8,7 @@ import mate.academy.springboot.practice.mapper.BookMapper;
 import mate.academy.springboot.practice.model.Book;
 import mate.academy.springboot.practice.repository.BookRepository;
 import mate.academy.springboot.practice.service.BookService;
+import mate.academy.springboot.practice.service.ShoppingCartService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
+    private final ShoppingCartService shoppingCartService;
 
     @Override
     public BookDto save(CreateBookRequestDto book) {
@@ -66,5 +68,6 @@ public class BookServiceImpl implements BookService {
     @Override
     public void delete(Long id) {
         bookRepository.deleteById(id);
+        shoppingCartService.deleteItemsByBookId(id);
     }
 }
