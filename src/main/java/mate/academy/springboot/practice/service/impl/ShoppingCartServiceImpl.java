@@ -7,6 +7,7 @@ import mate.academy.springboot.practice.dto.UpdateItemQuantityRequestDto;
 import mate.academy.springboot.practice.exception.AuthenticationException;
 import mate.academy.springboot.practice.exception.EntityNotFoundException;
 import mate.academy.springboot.practice.exception.InsertionException;
+import mate.academy.springboot.practice.helper.UserHelper;
 import mate.academy.springboot.practice.mapper.CartItemMapper;
 import mate.academy.springboot.practice.mapper.ShoppingCartMapper;
 import mate.academy.springboot.practice.model.Book;
@@ -30,10 +31,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private final CartItemMapper cartItemMapper;
     private final ShoppingCartMapper shoppingCartMapper;
     private final BookRepository bookRepository;
+    private final UserHelper userHelper;
 
     @Override
     public ShoppingCartDto add(Authentication authentication, AddItemToCartRequestDto item) {
-        Long userId = getUserId(authentication);
+        Long userId = userHelper.getUserOrThrow(authentication).getId();
 
         ShoppingCart shoppingCart = getShoppingCartByUserIdOrThrow(userId);
 
@@ -52,12 +54,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         cartItem.setShoppingCart(shoppingCart);
         cartItem.setBook(book);
         cartItemRepository.save(cartItem);
-        return shoppingCartMapper.toDto(getShoppingCartByUserIdOrThrow(userId));
+        shoppingCart.getCartItems().add(cartItem);
+        return shoppingCartMapper.toDto(shoppingCart);
     }
 
     @Override
     public ShoppingCartDto findByUser(Authentication authentication) {
-        Long userId = getUserId(authentication);
+        Long userId = userHelper.getUserOrThrow(authentication).getId();
 
         return shoppingCartMapper.toDto(getShoppingCartByUserIdOrThrow(userId));
     }
@@ -65,7 +68,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public ShoppingCartDto updateQuantity(Authentication authentication, Long cartItemId,
                                       UpdateItemQuantityRequestDto quantityRequest) {
-        Long userId = getUserId(authentication);
+        Long userId = userHelper.getUserOrThrow(authentication).getId();
 
         CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(
                 () -> new EntityNotFoundException("Item not found "
@@ -83,7 +86,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public void delete(Authentication authentication, Long cartItemId) {
-        Long userId = getUserId(authentication);
+        Long userId = userHelper.getUserOrThrow(authentication).getId();
 
         CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(
                 () -> new EntityNotFoundException("Item not found "
@@ -109,9 +112,5 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                 () -> new EntityNotFoundException("Shopping cart not found "
                         + "by user with id: " + userId)
         );
-    }
-
-    private Long getUserId(Authentication authentication) {
-        return ((User) authentication.getPrincipal()).getId();
     }
 }
